@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Item Tracker</title>
+
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #dbeafe, #fdf6e3);
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('pic.jpeg') no-repeat center center/cover;
+    filter: blur(3px);
+    opacity: 0.8;
+    z-index: -1;
+}
+
+.header {
+    text-align: center;
+    color: #0b2c4d;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.search-box {
+    text-align: center;
+    margin: 20px;
+}
+
+input {
+    padding: 12px;
+    width: 260px;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    background: #4a6fa5;
+    color: black;
+    cursor: pointer;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #3b5c8a;
+}
+
+#itemsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 20px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    width: 240px;
+    margin: 15px;
+    padding: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    transition: 0.3s;
+    color: #0b2c4d;
+}
+
+.card:hover {
+    transform: translateY(-8px) scale(1.05);
+}
+
+.card img {
+    width: 100%;
+    height: 140px;
+    border-radius: 15px;
+}
+
+.card h3 {
+    margin: 10px 0 5px;
+}
+
+.card p {
+    margin: 5px 0;
+}
+
+.no-result {
+    text-align: center;
+    color: #0b2c4d;
+    font-size: 18px;
+}
+
+.footer {
+    text-align: center;
+    color: #0b2c4d;
+    padding: 15px;
+    margin-top: 20px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="header">🔎 Smart Item Tracker</div>
+
+<div class="search-box">
+    <input type="text" id="searchBox" placeholder="🔍 Search items...">
+    <button onclick="searchItems()">🔍 Search</button>
+    <button onclick="resetSearch()">🔄 Show All</button>
+</div>
+
+<div id="itemsContainer"></div>
+
+<div class="footer">💡 Helping you reconnect with your belongings</div>
+
+<script>
+
+let items = JSON.parse(localStorage.getItem("items")) || [];
+let hasSearched = false;
+
+function displayItems(data) {
+    let container = document.getElementById("itemsContainer");
+    container.innerHTML = "";
+
+    if (data.length === 0) {
+        if (hasSearched) {
+            container.innerHTML = "<p class='no-result'>😔 No items found</p>";
+        } else {
+            container.innerHTML = "<p class='no-result'>✨ Start searching to find your items 🔍</p>";
+        }
+        return;
+    }
+
+    data.forEach(item => {
+        container.innerHTML += `
+            <div class="card">
+                <img src="${item.image ? item.image : 'https://via.placeholder.com/200'}">
+                <h3>📌 ${item.name || 'No Name'}</h3>
+                <p>📂 <b>Category:</b> ${item.category || 'N/A'}</p>
+                <p>📍 <b>Location:</b> ${item.location || 'N/A'}</p>
+            </div>
+        `;
+    });
+}
+
+function searchItems() {
+    hasSearched = true;
+
+    let query = document.getElementById("searchBox").value.toLowerCase();
+
+    if (query === "") {
+        displayItems(items);
+        return;
+    }
+
+    let filtered = items.filter(item =>
+        (item.name && item.name.toLowerCase().includes(query)) ||
+        (item.category && item.category.toLowerCase().includes(query))
+    );
+
+    displayItems(filtered);
+}
+
+function resetSearch() {
+    document.getElementById("searchBox").value = "";
+    hasSearched = false;
+    displayItems(items);
+}
+
+displayItems(items);
+
+</script>
+
+</body>
+</html>
